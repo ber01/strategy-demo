@@ -7,8 +7,6 @@ import me.minkh.strategydemo.champion.ChampionResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -24,5 +22,14 @@ public class DamageCalculator {
             return new ChampionResponse(damage);
         }
         throw new IllegalArgumentException(champion + "챔피언의 데미지는 계산할 수 없습니다.");
+    }
+
+    public ChampionResponse getDamageV2(ChampionRequest request) {
+        return strategies.stream()
+                .filter(strategy -> strategy.supports(request.getChampion()))
+                .findAny()
+                .map(strategy -> new ChampionResponse(
+                        strategy.damage(request)
+                )).orElseThrow(() -> new IllegalArgumentException(request.getChampion() + "챔피언의 데미지는 계산할 수 없습니다."));
     }
 }
